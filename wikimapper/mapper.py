@@ -52,16 +52,16 @@ class WikiMapper:
         title = wiki_url.rsplit("/", 1)[-1]
         return self.title_to_id(title)
 
-    def id_to_titles(self, wikidata_id: str) -> List[str]:
-        """ Given a Wikidata ID, return a list of corresponding pages that are linked to it.
-
-        Due to redirects, the mapping from Wikidata ID to Wikipedia title is not unique.
+    def id_to_title(self, wikidata_id: str) -> List[str]:
+        """ Given a Wikidata ID, return the main wikipedia link
+        
+        We ignore redirects
 
         Args:
             wikidata_id (str): The Wikidata ID to map, e.g. `Q42797`.
 
         Returns:
-            List[str]: A list of Wikipedia pages that are linked to this Wikidata ID.
+            str: The main corresponding wikipedia link 
 
         """
 
@@ -72,4 +72,5 @@ class WikiMapper:
             )
             results = c.fetchall()
 
-        return [e[0] for e in results]
+        assert(len(results)) == 1
+        return results[0][0]

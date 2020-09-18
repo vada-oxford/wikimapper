@@ -112,7 +112,6 @@ def create_index(dumpname: str, path_to_dumps: str, path_to_db: str = None) -> s
 
     pages_dump = os.path.join(path_to_dumps, dumpname + "-page.sql.gz")
     page_props_dump = os.path.join(path_to_dumps, dumpname + "-page_props.sql.gz")
-    redirects_dump = os.path.join(path_to_dumps, dumpname + "-redirect.sql.gz")
 
     csv.field_size_limit(sys.maxsize)
 
@@ -180,42 +179,6 @@ def create_index(dumpname: str, path_to_dumps: str, path_to_db: str = None) -> s
                     c.execute(
                         "UPDATE mapping SET wikidata_id = ? WHERE wikipedia_id = ?", (v[2], v[0])
                     )
-    conn.commit()
-
-    # Parse the Wikipedia redirect dump; fill in missing Wikidata ids
-    # https://www.mediawiki.org/wiki/Manual:Redirect_table
-    _logger.info("Parsing redirects dump")
-    with gzip.open(redirects_dump, "rt", encoding="utf-8", newline="\n") as f:
-        for line in f:
-            # Look for an INSERT statement and parse it.
-            if not _is_insert(line):
-                continue
-
-            values = _get_values(line)
-
-            for v in _parse_values(values):
-                source_wikipedia_id = v[0]
-                target_title = v[2]
-                namespace = v[1]
-
-                # We only care about main articles
-                if namespace != "0":
-                    continue
-
-                c.execute(
-                    "SELECT wikidata_id FROM mapping WHERE wikipedia_title = ?", (target_title,)
-                )
-                result = c.fetchone()
-
-                if result is None or result[0] is None:
-                    continue
-
-                wikidata_id = result[0]
-                c.execute(
-                    "UPDATE mapping SET wikidata_id = ? WHERE wikipedia_id = ?",
-                    (wikidata_id, source_wikipedia_id),
-                )
-
     conn.commit()
 
     _logger.info("Creating database index on 'wikidata_id'")
