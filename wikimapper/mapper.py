@@ -71,6 +71,6 @@ class WikiMapper:
                 "SELECT DISTINCT wikipedia_title FROM mapping WHERE wikidata_id =?", (wikidata_id,)
             )
             results = c.fetchall()
-
-        assert(len(results)) == 1
-        return results[0][0]
+        if len(results) >= 1:
+            return results[0][0] # return the main record only
+        return None
