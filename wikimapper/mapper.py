@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 
 class WikiMapper:
@@ -74,3 +74,19 @@ class WikiMapper:
         if len(results) >= 1:
             return results[0][0] # return the main record only
         return None
+
+    def get_full_mapping(self) -> List[Tuple[str, str]]:
+        """ Get full mapping        
+
+        Returns:
+            The mapping list
+
+        """
+
+        with sqlite3.connect(self._path_to_db) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT DISTINCT wikipedia_title, wikidata_id FROM mapping WHERE wikidata_id IS NOT NULL"
+            )
+            results = c.fetchall()
+        return results
