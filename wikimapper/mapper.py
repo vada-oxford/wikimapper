@@ -91,7 +91,7 @@ class WikiMapper:
             results = c.fetchall()
         return results
 
-    def get_full_mapping_with_pid(self) -> List[Tuple[str, str, str]]:
+    def get_full_mapping_with_pid(self) -> List[Tuple[int, str, str]]:
         """ Get full mapping with wikipedia page id
 
         Returns:
