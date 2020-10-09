@@ -90,3 +90,19 @@ class WikiMapper:
             )
             results = c.fetchall()
         return results
+
+    def get_full_mapping_with_pid(self) -> List[Tuple[str, str, str]]:
+        """ Get full mapping with wikipedia page id
+
+        Returns:
+            The mapping list with wikipedia page id
+
+        """
+
+        with sqlite3.connect(self._path_to_db) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT DISTINCT wikipedia_id, wikipedia_title, wikidata_id FROM mapping WHERE wikidata_id IS NOT NULL"
+            )
+            results = c.fetchall()
+        return results
